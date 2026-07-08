@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Titanes de Guerra</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== MENÚ PRINCIPAL ===== -->
+<div id="screen-menu" class="screen active">
+  <div class="menu-bg"></div>
+  <h1 class="title">⚔️ TITANES DE GUERRA</h1>
+  <p class="subtitle">Conquista los reinos. Comanda a tus titanes.</p>
+  <div class="menu-buttons">
+    <button class="btn btn-big btn-gold" id="btn-play">🗺️ CAMPAÑA</button>
+    <button class="btn btn-big" id="btn-army">🛡️ EJÉRCITO</button>
+    <button class="btn btn-small btn-danger" id="btn-reset">Reiniciar progreso</button>
+  </div>
+  <div class="menu-gold" id="menu-gold"></div>
+</div>
+
+<!-- ===== MAPA DE CAMPAÑA ===== -->
+<div id="screen-map" class="screen">
+  <div class="topbar">
+    <button class="btn btn-back" data-back>← Volver</button>
+    <span class="topbar-title">Mapa de Campaña</span>
+    <span class="gold-badge" id="map-gold"></span>
+  </div>
+  <div class="map-area" id="map-area">
+    <svg id="map-paths" preserveAspectRatio="none"></svg>
+  </div>
+</div>
+
+<!-- ===== EJÉRCITO / MEJORAS ===== -->
+<div id="screen-army" class="screen">
+  <div class="topbar">
+    <button class="btn btn-back" data-back>← Volver</button>
+    <span class="topbar-title">Tu Ejército</span>
+    <span class="gold-badge" id="army-gold"></span>
+  </div>
+  <div class="army-list" id="army-list"></div>
+</div>
+
+<!-- ===== BATALLA ===== -->
+<div id="screen-battle" class="screen">
+  <canvas id="battle-canvas"></canvas>
+  <div class="battle-top">
+    <div class="castle-hp castle-hp-left">
+      <span class="castle-hp-label">🏰 Tú</span>
+      <div class="hpbar"><div class="hpbar-fill hp-player" id="hp-player"></div></div>
+    </div>
+    <div class="battle-title" id="battle-title"></div>
+    <div class="castle-hp castle-hp-right">
+      <span class="castle-hp-label" id="enemy-label">Enemigo 🏯</span>
+      <div class="hpbar"><div class="hpbar-fill hp-enemy" id="hp-enemy"></div></div>
+    </div>
+  </div>
+  <div class="battle-bottom">
+    <div class="mana-wrap">
+      <div class="mana-bar"><div class="mana-fill" id="mana-fill"></div></div>
+      <span class="mana-text" id="mana-text">0</span>
+    </div>
+    <div class="cards" id="cards"></div>
+    <button class="btn btn-flee" id="btn-flee">🏳️</button>
+  </div>
+  <div class="deploy-hint" id="deploy-hint">Toca una carta y luego un carril para desplegar</div>
+</div>
+
+<!-- ===== RESULTADO ===== -->
+<div id="overlay-result" class="overlay">
+  <div class="result-box">
+    <h2 id="result-title"></h2>
+    <p id="result-text"></p>
+    <div class="result-buttons">
+      <button class="btn btn-gold" id="btn-result-continue">Continuar</button>
+      <button class="btn" id="btn-result-retry">Reintentar</button>
+    </div>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
