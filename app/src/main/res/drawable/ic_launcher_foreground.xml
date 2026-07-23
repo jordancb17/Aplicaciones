@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Stylised leukocyte (segmented nucleus in cytoplasm) within the safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Cytoplasm -->
+    <path
+        android:fillColor="#F4C6D2"
+        android:pathData="M54,26a28,28 0,1 0,0.01 0z" />
+    <!-- Nucleus lobes -->
+    <path
+        android:fillColor="#6B1E86"
+        android:pathData="M45,44a9,9 0,1 0,0.01 0z" />
+    <path
+        android:fillColor="#6B1E86"
+        android:pathData="M64,42a8,8 0,1 0,0.01 0z" />
+    <path
+        android:fillColor="#6B1E86"
+        android:pathData="M58,60a9,9 0,1 0,0.01 0z" />
+    <path
+        android:fillColor="#6B1E86"
+        android:pathData="M43,60a7,7 0,1 0,0.01 0z" />
+</vector>

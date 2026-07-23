@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    USB device filter for microscopy cameras.
+
+    Any UVC (USB Video Class) camera exposes interface class 14 (0x0E, video).
+    Matching by device class is the most reliable way to auto-detect eyepiece
+    cameras because vendors reuse generic USB-camera controller chips.
+
+    The Hayear HY500 family ships with several controller chips depending on the
+    production batch. The most common vendor IDs seen in the field are listed
+    below (0x0BDA = Realtek, 0x1B3F = Generalplus, 0x0AC8 = Z-Star/Vimicro,
+    0x05A3 = ARC / Sonix). Add the exact VID/PID of your unit here if it is not
+    auto-recognised: read it from Settings > About camera in the app, or from
+    `lsusb` on a PC while the camera is connected.
+-->
+<resources>
+    <!-- Generic: match every UVC video-class device. -->
+    <usb-device class="239" subclass="2" />           <!-- Miscellaneous / IAD video -->
+    <usb-device class="14" />                          <!-- USB Video Class -->
+
+    <!-- Hayear HY500 known controllers (VID in decimal). -->
+    <usb-device vendor-id="3034" />                    <!-- 0x0BDA Realtek -->
+    <usb-device vendor-id="6975" />                    <!-- 0x1B3F Generalplus -->
+    <usb-device vendor-id="2760" />                    <!-- 0x0AC8 Vimicro/Z-Star -->
+    <usb-device vendor-id="1443" />                    <!-- 0x05A3 Sonix -->
+</resources>
