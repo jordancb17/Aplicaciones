@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HematoScope</string>
+    <string name="app_tagline">Citomorfología digital · Hematología</string>
+
+    <!-- Navegación -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_capture">Captura</string>
+    <string name="nav_differential">Recuento</string>
+    <string name="nav_measurement">Medición</string>
+    <string name="nav_comparison">Comparar</string>
+    <string name="nav_atlas">Atlas</string>
+    <string name="nav_cases">Casos</string>
+    <string name="nav_calibration">Calibración</string>
+
+    <!-- Permisos -->
+    <string name="camera_permission_rationale">Se necesita acceso a la cámara para capturar campos del microscopio.</string>
+    <string name="grant_permission">Conceder permiso</string>
+
+    <!-- Cámara -->
+    <string name="camera_source_device">Cámara del dispositivo (adaptador de ocular)</string>
+    <string name="camera_source_usb">Cámara USB / HY500 (UVC)</string>
+    <string name="camera_source_network">Transmisión de red (MJPEG)</string>
+    <string name="usb_no_device">No se detectó una cámara USB. Conecte la HY500 mediante un cable OTG.</string>
+    <string name="usb_permission_request">Autorizar acceso a la cámara USB</string>
+    <string name="capture_photo">Capturar</string>
+
+    <string name="objective_lens">Objetivo</string>
+    <string name="units_micrometer">µm</string>
+</resources>
