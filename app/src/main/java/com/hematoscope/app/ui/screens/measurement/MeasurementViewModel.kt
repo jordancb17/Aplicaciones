@@ -12,7 +12,10 @@ import androidx.lifecycle.viewModelScope
 import com.hematoscope.app.HematoScopeApp
 import com.hematoscope.app.data.model.MeasurementAnnotation
 import com.hematoscope.app.data.model.MeasurementTool
+import com.hematoscope.app.domain.catalog.CellClassifier
+import com.hematoscope.app.domain.catalog.CellSuggestion
 import com.hematoscope.app.domain.measurement.Calibration
+import com.hematoscope.app.domain.measurement.Geometry
 import com.hematoscope.app.domain.measurement.MeasurementEngine
 import com.hematoscope.app.domain.measurement.MeasurementResult
 import com.hematoscope.app.domain.measurement.NucleusSegmenter
@@ -58,6 +61,10 @@ class MeasurementViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var segSummary by mutableStateOf<String?>(null)
         private set
+    var segDiameterMicrons by mutableStateOf<Float?>(null)
+        private set
+    var segSuggestions by mutableStateOf<List<CellSuggestion>>(emptyList())
+        private set
 
     init {
         viewModelScope.launch {
@@ -92,25 +99,35 @@ class MeasurementViewModel(app: Application) : AndroidViewModel(app) {
     fun clearSegmentation() {
         segResult = null
         segSummary = null
+        segDiameterMicrons = null
+        segSuggestions = emptyList()
     }
 
-    /** Auto-segment the cell under [center] (image coords) and estimate N:C. */
+    /** Auto-segment the cell under [center] (image coords), estimate N:C and suggest types. */
     fun runAutoSegmentation(center: Offset) {
         val bmp = image ?: return
         val res = NucleusSegmenter.segment(bmp, center.x.toInt(), center.y.toInt(), segRadius.toInt())
         if (res == null) {
             segResult = null
             segSummary = "Sin célula detectada bajo el toque"
-        } else {
-            segResult = res
-            segSummary = if (res.ncRatio.isFinite()) {
-                "N:C auto ≈ %.2f  ·  núcleo %.0f%% de la célula".format(
-                    res.ncRatio, res.nucleusFraction * 100f
-                )
-            } else {
-                "Núcleo prácticamente sin citoplasma detectable"
-            }
+            segDiameterMicrons = null
+            segSuggestions = emptyList()
+            return
         }
+        segResult = res
+        segSummary = if (res.ncRatio.isFinite()) {
+            "N:C auto ≈ %.2f  ·  núcleo %.0f%% de la célula".format(
+                res.ncRatio, res.nucleusFraction * 100f
+            )
+        } else {
+            "Núcleo prácticamente sin citoplasma detectable"
+        }
+
+        // Equivalent cell diameter (µm only when a calibration is active).
+        val diamPx = Geometry.equivalentDiameter(res.cellPixels.toFloat())
+        val cal = calibration?.takeIf { it.isValid }
+        segDiameterMicrons = cal?.toMicrons(diamPx)
+        segSuggestions = CellClassifier.suggest(segDiameterMicrons, res.ncRatio)
     }
 
     fun addPoint(imagePoint: Offset) {

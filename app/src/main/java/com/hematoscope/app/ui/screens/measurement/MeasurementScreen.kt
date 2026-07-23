@@ -230,6 +230,41 @@ private fun SegmentationPanel(vm: MeasurementViewModel, onPick: () -> Unit) {
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
+            vm.segDiameterMicrons?.let { diam ->
+                Text(
+                    "Ø célula ≈ %.1f µm (equivalente)".format(diam),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            if (vm.segSuggestions.isNotEmpty()) {
+                Spacer(Modifier.size(6.dp))
+                Text(
+                    "Sugerencias morfométricas",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                vm.segSuggestions.forEach { s ->
+                    Row(Modifier.fillMaxWidth()) {
+                        Text(
+                            s.cell.name,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            "${(s.score * 100f).toInt()} %",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+                Text(
+                    if (vm.segDiameterMicrons == null)
+                        "Solo N:C (calibre un objetivo para incluir también el tamaño)."
+                    else "Combina tamaño y N:C. No distingue por granulación.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             Spacer(Modifier.size(8.dp))
             Text(
                 "Radio de análisis: ${vm.segRadius.toInt()} px",

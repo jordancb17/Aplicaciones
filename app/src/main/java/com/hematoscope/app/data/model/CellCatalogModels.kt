@@ -34,6 +34,8 @@ enum class CountingGroup {
  * @param countingGroup how this cell participates in the differential
  * @param sizeMicrons   typical diameter range in micrometres (min..max)
  * @param ncRatio       typical nucleus-to-cytoplasm ratio expressed as text
+ * @param ncRatioRange  approximate numeric N:C ratio range, for morphometric
+ *                      matching (nucleus area ÷ cytoplasm area); null if n/a
  * @param keyFeatures   short bullet descriptors used in the atlas
  * @param cytoplasm     cytoplasm description
  * @param nucleus       nuclear description
@@ -49,6 +51,7 @@ data class CellType(
     val countingGroup: CountingGroup = CountingGroup.NOT_COUNTED,
     val sizeMicrons: ClosedFloatingPointRange<Float>? = null,
     val ncRatio: String? = null,
+    val ncRatioRange: ClosedFloatingPointRange<Float>? = null,
     val keyFeatures: List<String> = emptyList(),
     val cytoplasm: String? = null,
     val nucleus: String? = null,

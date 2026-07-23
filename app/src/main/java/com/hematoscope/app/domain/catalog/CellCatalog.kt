@@ -32,6 +32,7 @@ object CellCatalog {
         // ---------------------------------------------------------------- GRANULOCYTES
         CellType(
             id = "neutrophil_segmented",
+            ncRatioRange = 0.3f..0.6f,
             name = "Neutrófilo segmentado",
             synonyms = listOf("PMN", "polimorfonuclear", "segmented neutrophil"),
             category = CellCategory.GRANULOCYTE,
@@ -51,6 +52,7 @@ object CellCatalog {
         ),
         CellType(
             id = "neutrophil_band",
+            ncRatioRange = 0.3f..0.6f,
             name = "Neutrófilo en banda (cayado)",
             synonyms = listOf("band", "stab", "cayado", "bandemia"),
             category = CellCategory.GRANULOCYTE,
@@ -70,6 +72,7 @@ object CellCatalog {
         ),
         CellType(
             id = "eosinophil",
+            ncRatioRange = 0.3f..0.5f,
             name = "Eosinófilo",
             synonyms = listOf("eosinophil"),
             category = CellCategory.GRANULOCYTE,
@@ -89,6 +92,7 @@ object CellCatalog {
         ),
         CellType(
             id = "basophil",
+            ncRatioRange = 0.5f..0.9f,
             name = "Basófilo",
             synonyms = listOf("basophil"),
             category = CellCategory.GRANULOCYTE,
@@ -110,6 +114,7 @@ object CellCatalog {
         // ------------------------------------------------------------- AGRANULOCYTES
         CellType(
             id = "lymphocyte",
+            ncRatioRange = 2.0f..5.0f,
             name = "Linfocito",
             synonyms = listOf("lymphocyte"),
             category = CellCategory.AGRANULOCYTE,
@@ -129,6 +134,7 @@ object CellCatalog {
         ),
         CellType(
             id = "reactive_lymphocyte",
+            ncRatioRange = 1.0f..3.0f,
             name = "Linfocito reactivo (atípico)",
             synonyms = listOf("linfocito activado", "virocito", "Downey", "reactive lymphocyte"),
             category = CellCategory.AGRANULOCYTE,
@@ -148,6 +154,7 @@ object CellCatalog {
         ),
         CellType(
             id = "monocyte",
+            ncRatioRange = 0.5f..1.0f,
             name = "Monocito",
             synonyms = listOf("monocyte"),
             category = CellCategory.AGRANULOCYTE,
@@ -167,6 +174,7 @@ object CellCatalog {
         ),
         CellType(
             id = "plasma_cell",
+            ncRatioRange = 1.0f..2.0f,
             name = "Célula plasmática",
             synonyms = listOf("plasmocito", "plasma cell"),
             category = CellCategory.AGRANULOCYTE,
@@ -188,6 +196,7 @@ object CellCatalog {
         // ---------------------------------------------------------------- PRECURSORS
         CellType(
             id = "blast",
+            ncRatioRange = 2.5f..6.0f,
             name = "Blasto",
             synonyms = listOf("mieloblasto", "linfoblasto", "blast"),
             category = CellCategory.PRECURSOR,
@@ -207,6 +216,7 @@ object CellCatalog {
         ),
         CellType(
             id = "promyelocyte",
+            ncRatioRange = 1.5f..3.0f,
             name = "Promielocito",
             synonyms = listOf("promyelocyte"),
             category = CellCategory.PRECURSOR,
@@ -226,6 +236,7 @@ object CellCatalog {
         ),
         CellType(
             id = "myelocyte",
+            ncRatioRange = 1.0f..2.0f,
             name = "Mielocito",
             synonyms = listOf("myelocyte"),
             category = CellCategory.PRECURSOR,
@@ -245,6 +256,7 @@ object CellCatalog {
         ),
         CellType(
             id = "metamyelocyte",
+            ncRatioRange = 0.7f..1.2f,
             name = "Metamielocito",
             synonyms = listOf("metamyelocyte", "juvenil"),
             category = CellCategory.PRECURSOR,
