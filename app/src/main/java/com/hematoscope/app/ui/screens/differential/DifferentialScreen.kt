@@ -19,9 +19,13 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Undo
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -31,15 +35,23 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.hematoscope.app.data.db.CaseEntity
 import com.hematoscope.app.data.model.CellType
 
 @Composable
@@ -48,8 +60,20 @@ fun DifferentialScreen(vm: DifferentialViewModel = viewModel()) {
     val progress = if (vm.targetTotal > 0)
         (vm.wbcTotal.toFloat() / vm.targetTotal).coerceIn(0f, 1f) else 0f
 
+    val cases by vm.cases.collectAsStateWithLifecycle()
+    var showSaveDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    // Surface the save confirmation as a transient toast.
+    LaunchedEffect(vm.saveMessage) {
+        vm.saveMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            vm.clearMessage()
+        }
+    }
+
     Column(Modifier.fillMaxSize()) {
-        SummaryBar(vm = vm, progress = progress)
+        SummaryBar(vm = vm, progress = progress, onSave = { showSaveDialog = true })
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
@@ -82,10 +106,53 @@ fun DifferentialScreen(vm: DifferentialViewModel = viewModel()) {
             }
         }
     }
+
+    if (showSaveDialog) {
+        SaveToCaseDialog(
+            cases = cases,
+            onDismiss = { showSaveDialog = false },
+            onPick = { caseId ->
+                vm.saveToCase(caseId)
+                showSaveDialog = false
+            }
+        )
+    }
 }
 
 @Composable
-private fun SummaryBar(vm: DifferentialViewModel, progress: Float) {
+private fun SaveToCaseDialog(
+    cases: List<CaseEntity>,
+    onDismiss: () -> Unit,
+    onPick: (Long) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Guardar recuento en un caso") },
+        text = {
+            if (cases.isEmpty()) {
+                Text("No hay casos. Cree uno en la pestaña Casos para guardar el recuento.")
+            } else {
+                Column {
+                    cases.forEach { case ->
+                        Text(
+                            case.patientCode,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onPick(case.id) }
+                                .padding(vertical = 12.dp)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
+    )
+}
+
+@Composable
+private fun SummaryBar(vm: DifferentialViewModel, progress: Float, onSave: () -> Unit) {
     Surface(tonalElevation = 3.dp) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -99,6 +166,9 @@ private fun SummaryBar(vm: DifferentialViewModel, progress: Float) {
                         Text("Recuento completo ✓", color = MaterialTheme.colorScheme.tertiary,
                             style = MaterialTheme.typography.labelLarge)
                     }
+                }
+                IconButton(onClick = onSave) {
+                    Icon(Icons.Outlined.Save, contentDescription = "Guardar en caso")
                 }
                 IconButton(onClick = { vm.undo() }) {
                     Icon(Icons.Outlined.Undo, contentDescription = "Deshacer")

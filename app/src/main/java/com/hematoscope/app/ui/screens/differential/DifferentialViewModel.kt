@@ -1,14 +1,22 @@
 package com.hematoscope.app.ui.screens.differential
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.hematoscope.app.HematoScopeApp
+import com.hematoscope.app.data.db.CaseEntity
 import com.hematoscope.app.data.model.CellType
 import com.hematoscope.app.data.model.CountingGroup
 import com.hematoscope.app.domain.catalog.CellCatalog
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 /** A cell key with its live count and running percentage. */
 data class TallyRow(
@@ -22,7 +30,17 @@ data class TallyRow(
  * [targetTotal] (100 or 200 by convention); nucleated red cells are counted
  * separately and reported per 100 WBC, matching laboratory practice.
  */
-class DifferentialViewModel : ViewModel() {
+class DifferentialViewModel(app: Application) : AndroidViewModel(app) {
+
+    private val repository = (app as HematoScopeApp).repository
+
+    /** Cases available as save targets for the current count. */
+    val cases: StateFlow<List<CaseEntity>> =
+        repository.observeCases()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    var saveMessage by mutableStateOf<String?>(null)
+        private set
 
     private val counts = mutableStateMapOf<String, Int>()
     private val history = ArrayDeque<String>()  // cellIds, for undo
@@ -88,6 +106,17 @@ class DifferentialViewModel : ViewModel() {
 
     /** Snapshot suitable for persisting via the repository. */
     fun tallySnapshot(): Map<String, Int> = wbcKeys.associate { it.id to (counts[it.id] ?: 0) }
+
+    /** Persist the current count as a new differential attached to [caseId]. */
+    fun saveToCase(caseId: Long) {
+        viewModelScope.launch {
+            val diffId = repository.createDifferential(caseId, "Recuento diferencial", targetTotal)
+            repository.saveDifferentialTallies(diffId, tallySnapshot(), nrbcCount)
+            saveMessage = "Recuento guardado en el caso"
+        }
+    }
+
+    fun clearMessage() { saveMessage = null }
 
     companion object { private const val NRBC_TOKEN = "__nrbc__" }
 }

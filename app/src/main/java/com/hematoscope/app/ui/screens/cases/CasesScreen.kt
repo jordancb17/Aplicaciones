@@ -1,5 +1,8 @@
 package com.hematoscope.app.ui.screens.cases
 
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +19,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -37,8 +42,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
@@ -154,10 +161,27 @@ private fun CaseDetail(vm: CasesViewModel) {
     val captures by vm.captures.collectAsStateWithLifecycle()
     val observations by vm.observations.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+
     LazyColumn(
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        item {
+            Button(
+                onClick = {
+                    vm.exportReport(
+                        onReady = { file -> sharePdf(context, file) },
+                        onError = { msg -> Toast.makeText(context, msg, Toast.LENGTH_LONG).show() }
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Outlined.PictureAsPdf, contentDescription = null)
+                androidx.compose.foundation.layout.Spacer(Modifier.size(8.dp))
+                Text("Exportar informe PDF")
+            }
+        }
         item {
             Text("Campos capturados (${captures.size})",
                 style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
@@ -242,6 +266,17 @@ private fun PresenceRow(name: String, present: Boolean, onToggle: (Boolean) -> U
         Text(name, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
         androidx.compose.material3.Switch(checked = present, onCheckedChange = onToggle)
     }
+}
+
+/** Open the generated PDF report through the system share/open chooser. */
+private fun sharePdf(context: Context, file: java.io.File) {
+    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "application/pdf"
+        putExtra(Intent.EXTRA_STREAM, uri)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    context.startActivity(Intent.createChooser(intent, "Compartir informe PDF"))
 }
 
 @Composable

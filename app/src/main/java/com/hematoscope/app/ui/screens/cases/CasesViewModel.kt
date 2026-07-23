@@ -7,6 +7,8 @@ import com.hematoscope.app.HematoScopeApp
 import com.hematoscope.app.data.db.CaptureEntity
 import com.hematoscope.app.data.db.CaseEntity
 import com.hematoscope.app.data.db.ObservationEntity
+import com.hematoscope.app.domain.report.CaseReportGenerator
+import java.io.File
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -55,6 +57,19 @@ class CasesViewModel(app: Application) : AndroidViewModel(app) {
         val id = selectedCaseId.value ?: return
         viewModelScope.launch {
             repository.setObservation(id, descriptorId, gradePlus, present, note = "")
+        }
+    }
+
+    /** Build and render a PDF report for the selected case, then hand back the file. */
+    fun exportReport(onReady: (File) -> Unit, onError: (String) -> Unit) {
+        val id = selectedCaseId.value ?: return onError("No hay caso seleccionado")
+        viewModelScope.launch {
+            val data = repository.buildCaseReport(id)
+                ?: return@launch onError("No se pudo cargar el caso")
+            val file = runCatching {
+                CaseReportGenerator.generate(getApplication(), data)
+            }.getOrElse { return@launch onError("Error al generar el PDF: ${it.message}") }
+            onReady(file)
         }
     }
 }

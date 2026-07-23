@@ -377,6 +377,44 @@ object CellCatalog {
             clinicalNote = "Artefacto informativo: muy numerosas orientan a LLC.",
             shortcut = "S",
             color = C_OTHER
+        ),
+        CellType(
+            id = "hairy_cell",
+            name = "Tricoleucocito (célula peluda)",
+            synonyms = listOf("hairy cell", "célula pilosa"),
+            category = CellCategory.AGRANULOCYTE,
+            countingGroup = CountingGroup.NOT_COUNTED,
+            sizeMicrons = 10f..15f,
+            ncRatio = "Medio-alto",
+            keyFeatures = listOf(
+                "Linfocito B neoplásico con proyecciones citoplasmáticas finas ('pelos')",
+                "Núcleo oval o reniforme de cromatina laxa homogénea",
+                "Positividad para TRAP; asociado a pancitopenia y esplenomegalia"
+            ),
+            cytoplasm = "Abundante, gris-azulado, con bordes deshilachados.",
+            nucleus = "Oval/reniforme, sin nucléolo prominente.",
+            clinicalNote = "Diagnóstico de la tricoleucemia (hairy cell leukemia).",
+            shortcut = "HC",
+            color = C_LYMPH
+        ),
+        CellType(
+            id = "sezary_cell",
+            name = "Célula de Sézary",
+            synonyms = listOf("Sezary cell", "célula cerebriforme"),
+            category = CellCategory.AGRANULOCYTE,
+            countingGroup = CountingGroup.NOT_COUNTED,
+            sizeMicrons = 10f..20f,
+            ncRatio = "Alto",
+            keyFeatures = listOf(
+                "Linfocito T con núcleo cerebriforme (surcos profundos)",
+                "Cromatina densa plegada 'en cerebro'",
+                "Circula en el síndrome de Sézary / micosis fungoide"
+            ),
+            cytoplasm = "Escaso, basófilo.",
+            nucleus = "Cerebriforme, muy plegado.",
+            clinicalNote = "Marcador del linfoma cutáneo de células T (fase leucémica).",
+            shortcut = "Sz",
+            color = C_LYMPH
         )
     )
 
@@ -465,6 +503,27 @@ object CellCatalog {
             axis = DescriptorAxis.SHAPE, appliesTo = CellCategory.ERYTHROID,
             definition = "Hematíe en forma de lágrima con un extremo elongado.",
             significance = "Mielofibrosis, metaplasia mieloide, talasemia."
+        ),
+        MorphologyDescriptor(
+            id = "bite_cell", name = "Célula mordida (degmacito)",
+            synonyms = listOf("bite cell", "degmacyte"),
+            axis = DescriptorAxis.SHAPE, appliesTo = CellCategory.ERYTHROID,
+            definition = "Hematíe con una o más muescas semicirculares por retirada esplénica de cuerpos de Heinz.",
+            significance = "Déficit de G6PD y otras hemólisis oxidativas."
+        ),
+        MorphologyDescriptor(
+            id = "heinz_bodies", name = "Cuerpos de Heinz",
+            synonyms = listOf("Heinz bodies"),
+            axis = DescriptorAxis.INCLUSION, appliesTo = CellCategory.ERYTHROID,
+            definition = "Precipitados de hemoglobina desnaturalizada; solo visibles con tinción supravital (cristal violeta).",
+            significance = "Estrés oxidativo: déficit de G6PD, hemoglobinas inestables.", gradable = false
+        ),
+        MorphologyDescriptor(
+            id = "hbc_crystal", name = "Cristales de hemoglobina C",
+            synonyms = listOf("HbC crystals", "cristal en barra"),
+            axis = DescriptorAxis.INCLUSION, appliesTo = CellCategory.ERYTHROID,
+            definition = "Cristales intracelulares rectangulares densos que deforman el hematíe.",
+            significance = "Enfermedad por hemoglobina C (HbCC) o HbSC.", gradable = false
         ),
         MorphologyDescriptor(
             id = "elliptocyte", name = "Eliptocito / ovalocito",

@@ -20,7 +20,7 @@ de campos, gestión de **casos** y **conexión con cámaras de microscopía** �
 | **Medición** | Distancia/diámetro, longitud, área (polígono con Ø equivalente), círculo, ángulo y **relación núcleo/citoplasma (N:C)** sobre la imagen, en píxeles o **µm** si hay calibración. |
 | **Calibración** | Escala µm/píxel por objetivo a partir de una **platina micrométrica** (o el estándar interno del hematíe ≈ 7,5 µm). |
 | **Comparación** | Dos campos lado a lado + una célula de referencia del atlas para contrastar rasgos. |
-| **Casos** | Estudios por paciente: campos capturados y gradación semicuantitativa (0/1+/2+/3+) de la morfología. |
+| **Casos** | Estudios por paciente: campos capturados, recuento diferencial guardado, gradación semicuantitativa (0/1+/2+/3+) de la morfología y **exportación de informe PDF**. |
 | **Captura** | Vídeo en vivo desde la cámara del dispositivo (adaptador de ocular), **USB/UVC (HY500)** o **MJPEG por red**. |
 
 ---
@@ -113,8 +113,9 @@ El APK resultante queda en `app/build/outputs/apk/debug/`.
 
 ## Estado y hoja de ruta
 
-Implementado y funcional: atlas, recuento diferencial, medición + calibración,
-comparación, casos con persistencia y las tres fuentes de captura.
+Implementado y funcional: atlas, recuento diferencial (con guardado en caso),
+medición + calibración, comparación, casos con persistencia, **informe PDF del
+caso** y las tres fuentes de captura.
 
 Ideas siguientes: segmentación asistida de núcleo/citoplasma para la N:C automática,
-exportación de informe PDF del caso, y clasificación asistida por modelo en el dispositivo.
+y clasificación asistida por modelo en el dispositivo.

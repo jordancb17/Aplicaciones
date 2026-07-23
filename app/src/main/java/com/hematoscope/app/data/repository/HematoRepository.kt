@@ -12,9 +12,15 @@ import com.hematoscope.app.data.db.ObservationEntity
 import com.hematoscope.app.data.db.Serialization
 import com.hematoscope.app.data.model.MeasurementAnnotation
 import com.hematoscope.app.data.model.MeasurementTool
+import com.hematoscope.app.data.model.MorphologyGrade
+import com.hematoscope.app.domain.catalog.CellCatalog
 import com.hematoscope.app.domain.measurement.Calibration
+import com.hematoscope.app.domain.report.CaseReportData
+import com.hematoscope.app.domain.report.DiffRow
+import com.hematoscope.app.domain.report.GradedFinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -177,6 +183,67 @@ class HematoRepository(context: Context) {
                 calibrated = m.calibrated
             )
         )
+
+    // ------------------------------------------------------------- Reporting
+    /**
+     * Gather everything needed for a case report, resolving catalog names.
+     * Returns null if the case no longer exists.
+     */
+    suspend fun buildCaseReport(caseId: Long): CaseReportData? = withContext(Dispatchers.IO) {
+        val case = db.caseDao().get(caseId) ?: return@withContext null
+        val captures = db.captureDao().observeForCase(caseId).first()
+        val observations = db.observationDao().observeForCase(caseId).first()
+        val latestDiff = db.differentialDao().observeForCase(caseId).first().firstOrNull()
+
+        val diffRows: List<DiffRow>
+        val wbcTotal: Int
+        if (latestDiff != null) {
+            val tallies = Serialization.decodeTallies(latestDiff.talliesJson)
+            wbcTotal = tallies.values.sum()
+            diffRows = tallies
+                .filter { it.value > 0 }
+                .map { (id, count) ->
+                    val name = CellCatalog.cellById(id)?.name ?: id
+                    val pct = if (wbcTotal > 0) count * 100f / wbcTotal else 0f
+                    DiffRow(name, count, pct)
+                }
+                .sortedByDescending { it.count }
+        } else {
+            diffRows = emptyList()
+            wbcTotal = 0
+        }
+        val nrbc = latestDiff?.nrbcCount ?: 0
+        val nrbcPer100 = if (wbcTotal > 0) nrbc * 100f / wbcTotal else 0f
+
+        val graded = observations
+            .filter { it.gradePlus > 0 }
+            .mapNotNull { obs ->
+                val d = CellCatalog.descriptorById(obs.descriptorId) ?: return@mapNotNull null
+                if (!d.gradable) return@mapNotNull null
+                GradedFinding(d.name, MorphologyGrade.fromPlus(obs.gradePlus).label)
+            }
+        val qualitative = observations
+            .mapNotNull { obs ->
+                val d = CellCatalog.descriptorById(obs.descriptorId) ?: return@mapNotNull null
+                if (d.gradable) null else d.name
+            }
+
+        CaseReportData(
+            patientCode = case.patientCode,
+            description = case.description,
+            createdAtEpochMs = case.createdAt,
+            hasDifferential = latestDiff != null,
+            differentialName = latestDiff?.name ?: "",
+            differentialTarget = latestDiff?.targetTotal ?: 0,
+            wbcTotal = wbcTotal,
+            differentialRows = diffRows,
+            nrbcCount = nrbc,
+            nrbcPer100Wbc = nrbcPer100,
+            gradedFindings = graded,
+            qualitativeFindings = qualitative,
+            capturePaths = captures.map { it.filePath }
+        )
+    }
 
     // ------------------------------------------------------------- Mappers
     private fun CalibrationEntity.toDomain() = Calibration(
