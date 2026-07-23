@@ -70,7 +70,7 @@ fun CaptureScreen(vm: CaptureViewModel = viewModel()) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        SourceSelector(selected = vm.source, onSelect = vm::setSource)
+        SourceSelector(selected = vm.source, onSelect = vm::selectSource)
         ObjectiveSelector(selected = vm.objectiveLabel, onSelect = vm::setObjective)
 
         Box(
@@ -232,7 +232,7 @@ private fun NetworkPreview(vm: CaptureViewModel) {
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedTextField(
             value = vm.networkUrl,
-            onValueChange = vm::setNetworkUrl,
+            onValueChange = vm::updateNetworkUrl,
             label = { Text("URL MJPEG (PC con la HY500)") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()

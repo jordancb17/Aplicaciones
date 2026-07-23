@@ -68,7 +68,7 @@ fun MeasurementScreen(vm: MeasurementViewModel = viewModel()) {
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri ?: return@rememberLauncherForActivityResult
         context.contentResolver.openInputStream(uri)?.use { stream ->
-            BitmapFactory.decodeStream(stream)?.let(vm::setImage)
+            BitmapFactory.decodeStream(stream)?.let(vm::loadImage)
         }
     }
 
@@ -78,7 +78,7 @@ fun MeasurementScreen(vm: MeasurementViewModel = viewModel()) {
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        ToolRow(selected = vm.tool, onSelect = vm::setTool)
+        ToolRow(selected = vm.tool, onSelect = vm::selectTool)
         CalibrationRow(vm)
 
         val bmp = vm.image
@@ -163,14 +163,14 @@ private fun CalibrationRow(vm: MeasurementViewModel) {
             item {
                 FilterChip(
                     selected = vm.calibration == null,
-                    onClick = { vm.setCalibration(null) },
+                    onClick = { vm.selectCalibration(null) },
                     label = { Text("Píxeles") }
                 )
             }
             items(vm.calibrations) { cal ->
                 FilterChip(
                     selected = vm.calibration == cal,
-                    onClick = { vm.setCalibration(cal) },
+                    onClick = { vm.selectCalibration(cal) },
                     label = { Text("${cal.objectiveLabel} · %.3f µm/px".format(cal.micronsPerPixel)) }
                 )
             }

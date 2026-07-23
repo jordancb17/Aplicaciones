@@ -47,13 +47,13 @@ class CaptureViewModel(app: Application) : AndroidViewModel(app) {
 
     private var networkJob: Job? = null
 
-    fun setSource(s: CameraSourceType) {
+    fun selectSource(s: CameraSourceType) {
         if (s != CameraSourceType.NETWORK) stopNetwork()
         source = s
     }
 
     fun setObjective(o: String) { objectiveLabel = o }
-    fun setNetworkUrl(url: String) { networkUrl = url }
+    fun updateNetworkUrl(url: String) { networkUrl = url }
 
     fun startNetwork() {
         stopNetwork()

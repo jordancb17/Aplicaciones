@@ -57,18 +57,18 @@ class MeasurementViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun setImage(bitmap: Bitmap) {
+    fun loadImage(bitmap: Bitmap) {
         image = bitmap
         clearAll()
     }
 
-    fun setTool(t: MeasurementTool) {
+    fun selectTool(t: MeasurementTool) {
         tool = t
         currentPoints.clear()
         nucleusPointCount = 0
     }
 
-    fun setCalibration(c: Calibration?) { calibration = c }
+    fun selectCalibration(c: Calibration?) { calibration = c }
 
     fun addPoint(imagePoint: Offset) {
         // For simple two-point tools, cap at the required number of points.

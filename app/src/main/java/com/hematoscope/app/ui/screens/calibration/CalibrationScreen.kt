@@ -57,7 +57,7 @@ fun CalibrationScreen(onBack: () -> Unit, vm: CalibrationViewModel = viewModel()
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri ?: return@rememberLauncherForActivityResult
         context.contentResolver.openInputStream(uri)?.use { stream ->
-            BitmapFactory.decodeStream(stream)?.let(vm::setImage)
+            BitmapFactory.decodeStream(stream)?.let(vm::loadImage)
         }
     }
 

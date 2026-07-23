@@ -49,7 +49,7 @@ class CalibrationViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun setImage(b: Bitmap) { image = b; points.clear() }
+    fun loadImage(b: Bitmap) { image = b; points.clear() }
 
     fun setObjective(label: String, mag: Float) {
         objectiveLabel = label; magnification = mag
