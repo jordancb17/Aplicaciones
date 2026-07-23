@@ -3,6 +3,7 @@ package com.hematoscope.app.domain.catalog
 import com.hematoscope.app.data.model.CellCategory
 import com.hematoscope.app.data.model.CellType
 import com.hematoscope.app.data.model.CountingGroup
+import com.hematoscope.app.data.model.GranuleType
 import com.hematoscope.app.data.model.DescriptorAxis
 import com.hematoscope.app.data.model.MorphologyDescriptor
 
@@ -33,6 +34,7 @@ object CellCatalog {
         CellType(
             id = "neutrophil_segmented",
             ncRatioRange = 0.3f..0.6f,
+            granuleType = GranuleType.NEUTRAL,
             name = "Neutrófilo segmentado",
             synonyms = listOf("PMN", "polimorfonuclear", "segmented neutrophil"),
             category = CellCategory.GRANULOCYTE,
@@ -53,6 +55,7 @@ object CellCatalog {
         CellType(
             id = "neutrophil_band",
             ncRatioRange = 0.3f..0.6f,
+            granuleType = GranuleType.NEUTRAL,
             name = "Neutrófilo en banda (cayado)",
             synonyms = listOf("band", "stab", "cayado", "bandemia"),
             category = CellCategory.GRANULOCYTE,
@@ -73,6 +76,7 @@ object CellCatalog {
         CellType(
             id = "eosinophil",
             ncRatioRange = 0.3f..0.5f,
+            granuleType = GranuleType.EOSINOPHILIC,
             name = "Eosinófilo",
             synonyms = listOf("eosinophil"),
             category = CellCategory.GRANULOCYTE,
@@ -93,6 +97,7 @@ object CellCatalog {
         CellType(
             id = "basophil",
             ncRatioRange = 0.5f..0.9f,
+            granuleType = GranuleType.BASOPHILIC,
             name = "Basófilo",
             synonyms = listOf("basophil"),
             category = CellCategory.GRANULOCYTE,
@@ -237,6 +242,7 @@ object CellCatalog {
         CellType(
             id = "myelocyte",
             ncRatioRange = 1.0f..2.0f,
+            granuleType = GranuleType.NEUTRAL,
             name = "Mielocito",
             synonyms = listOf("myelocyte"),
             category = CellCategory.PRECURSOR,
@@ -257,6 +263,7 @@ object CellCatalog {
         CellType(
             id = "metamyelocyte",
             ncRatioRange = 0.7f..1.2f,
+            granuleType = GranuleType.NEUTRAL,
             name = "Metamielocito",
             synonyms = listOf("metamyelocyte", "juvenil"),
             category = CellCategory.PRECURSOR,

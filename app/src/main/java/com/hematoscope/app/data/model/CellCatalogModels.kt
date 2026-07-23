@@ -24,6 +24,21 @@ enum class CountingGroup {
 }
 
 /**
+ * Cytoplasmic granulation type, used by the morphometric suggester to separate
+ * granulocytes that overlap in size and N:C by their granule colour.
+ */
+enum class GranuleType {
+    /** Agranular (lymphocyte, blast, monocyte…). */
+    NONE,
+    /** Fine neutral/lilac granules (neutrophils and their precursors). */
+    NEUTRAL,
+    /** Coarse orange-red granules (eosinophils). */
+    EOSINOPHILIC,
+    /** Coarse dark blue-purple granules (basophils). */
+    BASOPHILIC
+}
+
+/**
  * A morphological cell type. Immutable reference data; instances live in
  * [com.hematoscope.app.domain.catalog.CellCatalog].
  *
@@ -52,6 +67,7 @@ data class CellType(
     val sizeMicrons: ClosedFloatingPointRange<Float>? = null,
     val ncRatio: String? = null,
     val ncRatioRange: ClosedFloatingPointRange<Float>? = null,
+    val granuleType: GranuleType = GranuleType.NONE,
     val keyFeatures: List<String> = emptyList(),
     val cytoplasm: String? = null,
     val nucleus: String? = null,

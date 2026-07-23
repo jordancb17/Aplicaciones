@@ -1,9 +1,20 @@
 package com.hematoscope.app.domain.catalog
 
 import com.hematoscope.app.data.model.CellType
+import com.hematoscope.app.data.model.GranuleType
 
 /** A ranked cell-type suggestion with a 0..1 match score. */
 data class CellSuggestion(val cell: CellType, val score: Float)
+
+/**
+ * Cytoplasm colour/texture features from segmentation, used to separate
+ * granulocytes by granule colour. All fields are 0..1.
+ */
+data class GranuleFeatures(
+    val orangeness: Float,
+    val darkPurpleFraction: Float,
+    val granularity: Float
+)
 
 /**
  * Morphometric (rule-based) cell-type suggester.
@@ -27,6 +38,7 @@ object CellClassifier {
     fun suggest(
         diameterMicrons: Float?,
         ncRatio: Float,
+        granules: GranuleFeatures? = null,
         limit: Int = 4
     ): List<CellSuggestion> {
         if (!ncRatio.isFinite() || ncRatio <= 0f) return emptyList()
@@ -44,11 +56,27 @@ object CellClassifier {
                     total += rangeScore(diameterMicrons, size.start, size.endInclusive) * SIZE_WEIGHT
                     weight += SIZE_WEIGHT
                 }
+                if (granules != null) {
+                    total += granuleScore(cell.granuleType, granules) * GRAN_WEIGHT
+                    weight += GRAN_WEIGHT
+                }
 
                 if (weight == 0f) null else CellSuggestion(cell, total / weight)
             }
             .sortedByDescending { it.score }
             .take(limit)
+    }
+
+    /** How well the observed cytoplasm colour matches a cell's granule type. */
+    private fun granuleScore(type: GranuleType, f: GranuleFeatures): Float {
+        val dark = (f.darkPurpleFraction * 2f).coerceIn(0f, 1f)
+        return when (type) {
+            GranuleType.EOSINOPHILIC -> f.orangeness
+            GranuleType.BASOPHILIC -> dark
+            GranuleType.NEUTRAL -> ((1f - f.orangeness) * (1f - dark)).coerceIn(0f, 1f)
+            GranuleType.NONE ->
+                ((1f - f.orangeness) * (1f - dark) * (1f - 0.5f * f.granularity)).coerceIn(0f, 1f)
+        }
     }
 
     /**
@@ -64,4 +92,5 @@ object CellClassifier {
 
     private const val NC_WEIGHT = 1.0f
     private const val SIZE_WEIGHT = 1.0f
+    private const val GRAN_WEIGHT = 0.9f
 }

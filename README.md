@@ -17,7 +17,7 @@ de campos, gestión de **casos** y **conexión con cámaras de microscopía** �
 | --- | --- |
 | **Atlas de descriptores** | Catálogo buscable de tipos celulares (serie blanca, roja, plaquetas, precursores) y descriptores morfológicos (tamaño, forma, color, inclusiones, núcleo, citoplasma) con definición y significado clínico. |
 | **Recuento diferencial** | Contador manual tipo teclado para 100/200 leucocitos, con porcentajes en vivo, deshacer/reiniciar y NRBC (eritroblastos) por 100 leucocitos. |
-| **Medición** | Distancia/diámetro, longitud, área (polígono con Ø equivalente), círculo, ángulo y **relación núcleo/citoplasma (N:C)** —manual o con **segmentación automática** (umbral de color + Otsu)— sobre la imagen, en píxeles o **µm** si hay calibración. La segmentación añade un **sugeridor morfométrico** que rankea los tipos celulares más probables por tamaño y N:C. |
+| **Medición** | Distancia/diámetro, longitud, área (polígono con Ø equivalente), círculo, ángulo y **relación núcleo/citoplasma (N:C)** —manual o con **segmentación automática** (umbral de color + Otsu)— sobre la imagen, en píxeles o **µm** si hay calibración. La segmentación añade un **sugeridor morfométrico** que rankea los tipos celulares más probables por tamaño, N:C y **color de granulación** del citoplasma (separa neutrófilo / eosinófilo / basófilo). |
 | **Calibración** | Escala µm/píxel por objetivo a partir de una **platina micrométrica** (o el estándar interno del hematíe ≈ 7,5 µm). |
 | **Comparación** | Dos campos lado a lado + una célula de referencia del atlas para contrastar rasgos. |
 | **Casos** | Estudios por paciente: campos capturados, recuento diferencial guardado, gradación semicuantitativa (0/1+/2+/3+) de la morfología y **exportación de informe PDF**. |
@@ -125,5 +125,5 @@ medición + calibración, comparación, casos con persistencia, **informe PDF de
 caso** y las tres fuentes de captura.
 
 Ideas siguientes: clasificación por modelo de aprendizaje profundo en el dispositivo
-(TensorFlow Lite) para complementar al sugeridor morfométrico actual, e integración
-del granulado/color para separar tipos que hoy solapan en tamaño y N:C.
+(TensorFlow Lite) para complementar al sugeridor morfométrico actual, y calibración
+de los pesos del sugeridor contra casos anotados.

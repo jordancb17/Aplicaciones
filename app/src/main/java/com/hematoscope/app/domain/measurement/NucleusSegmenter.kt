@@ -16,7 +16,13 @@ data class SegmentationResult(
     val nucleusFraction: Float,
     val overlay: Bitmap,
     val overlayLeft: Int,
-    val overlayTop: Int
+    val overlayTop: Int,
+    /** Mean orange-vs-blue bias of the cytoplasm, 0..1 (high in eosinophils). */
+    val cytoOrangeness: Float = 0f,
+    /** Fraction of cytoplasm that is dark blue-purple, 0..1 (basophil granules). */
+    val cytoDarkPurpleFraction: Float = 0f,
+    /** Cytoplasm luminance texture, 0..1 (granularity vs smoothness). */
+    val cytoGranularity: Float = 0f
 )
 
 /**
@@ -93,6 +99,11 @@ object NucleusSegmenter {
         val threshold = otsu(hist, cellCount)
 
         var nucleus = 0
+        var cytoCount = 0
+        var sumOrange = 0L
+        var darkPurple = 0
+        var sumLum = 0.0
+        var sumLumSq = 0.0
         val overlayPixels = IntArray(bw * bh) // 0 == transparent
         for (idx in isCell.indices) {
             if (!isCell[idx]) continue
@@ -102,6 +113,16 @@ object NucleusSegmenter {
                 overlayPixels[idx] = NUCLEUS_ARGB
             } else {
                 overlayPixels[idx] = CYTOPLASM_ARGB
+                val c = px[idx]
+                val red = (c shr 16) and 0xFF
+                val green = (c shr 8) and 0xFF
+                val blue = c and 0xFF
+                val lum = 0.299 * red + 0.587 * green + 0.114 * blue
+                cytoCount++
+                sumOrange += (red - blue).toLong()
+                if (lum < 120.0 && blue > green && red > green) darkPurple++
+                sumLum += lum
+                sumLumSq += lum * lum
             }
         }
 
@@ -112,6 +133,17 @@ object NucleusSegmenter {
         val ratio = if (cytoplasm > 0) nucleus.toFloat() / cytoplasm else Float.POSITIVE_INFINITY
         val fraction = if (cellCount > 0) nucleus.toFloat() / cellCount else 0f
 
+        var orangeness = 0f
+        var darkPurpleFraction = 0f
+        var granularity = 0f
+        if (cytoCount > 0) {
+            orangeness = ((sumOrange.toDouble() / cytoCount) / 128.0).coerceIn(0.0, 1.0).toFloat()
+            darkPurpleFraction = (darkPurple.toDouble() / cytoCount).toFloat()
+            val meanLum = sumLum / cytoCount
+            val variance = (sumLumSq / cytoCount - meanLum * meanLum).coerceAtLeast(0.0)
+            granularity = (kotlin.math.sqrt(variance) / 60.0).coerceIn(0.0, 1.0).toFloat()
+        }
+
         return SegmentationResult(
             nucleusPixels = nucleus,
             cytoplasmPixels = cytoplasm,
@@ -120,7 +152,10 @@ object NucleusSegmenter {
             nucleusFraction = fraction,
             overlay = overlay,
             overlayLeft = x0,
-            overlayTop = y0
+            overlayTop = y0,
+            cytoOrangeness = orangeness,
+            cytoDarkPurpleFraction = darkPurpleFraction,
+            cytoGranularity = granularity
         )
     }
 

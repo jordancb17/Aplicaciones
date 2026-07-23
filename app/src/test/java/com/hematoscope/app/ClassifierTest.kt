@@ -1,6 +1,7 @@
 package com.hematoscope.app
 
 import com.hematoscope.app.domain.catalog.CellClassifier
+import com.hematoscope.app.domain.catalog.GranuleFeatures
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -35,5 +36,21 @@ class ClassifierTest {
     fun invalidNc_returnsNoSuggestions() {
         assertTrue(CellClassifier.suggest(null, 0f).isEmpty())
         assertTrue(CellClassifier.suggest(null, Float.POSITIVE_INFINITY).isEmpty())
+    }
+
+    @Test
+    fun orangeGranules_favourEosinophilOverNeutrophil() {
+        // Neutrophil and eosinophil overlap on size + N:C; strongly orange
+        // cytoplasm must break the tie toward eosinophil.
+        val orange = GranuleFeatures(orangeness = 0.9f, darkPurpleFraction = 0f, granularity = 0.5f)
+        val top = CellClassifier.suggest(diameterMicrons = 13f, ncRatio = 0.4f, granules = orange).first()
+        assertEquals("eosinophil", top.cell.id)
+    }
+
+    @Test
+    fun darkPurpleGranules_favourBasophil() {
+        val dark = GranuleFeatures(orangeness = 0f, darkPurpleFraction = 0.6f, granularity = 0.6f)
+        val top = CellClassifier.suggest(diameterMicrons = 12f, ncRatio = 0.7f, granules = dark).first()
+        assertEquals("basophil", top.cell.id)
     }
 }

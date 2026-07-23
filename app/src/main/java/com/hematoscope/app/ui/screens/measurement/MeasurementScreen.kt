@@ -259,8 +259,8 @@ private fun SegmentationPanel(vm: MeasurementViewModel, onPick: () -> Unit) {
                 }
                 Text(
                     if (vm.segDiameterMicrons == null)
-                        "Solo N:C (calibre un objetivo para incluir también el tamaño)."
-                    else "Combina tamaño y N:C. No distingue por granulación.",
+                        "Usa N:C y color de granulación (calibre un objetivo para añadir el tamaño)."
+                    else "Combina tamaño, N:C y color de granulación del citoplasma.",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

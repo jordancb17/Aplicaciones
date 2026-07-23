@@ -14,6 +14,7 @@ import com.hematoscope.app.data.model.MeasurementAnnotation
 import com.hematoscope.app.data.model.MeasurementTool
 import com.hematoscope.app.domain.catalog.CellClassifier
 import com.hematoscope.app.domain.catalog.CellSuggestion
+import com.hematoscope.app.domain.catalog.GranuleFeatures
 import com.hematoscope.app.domain.measurement.Calibration
 import com.hematoscope.app.domain.measurement.Geometry
 import com.hematoscope.app.domain.measurement.MeasurementEngine
@@ -127,7 +128,12 @@ class MeasurementViewModel(app: Application) : AndroidViewModel(app) {
         val diamPx = Geometry.equivalentDiameter(res.cellPixels.toFloat())
         val cal = calibration?.takeIf { it.isValid }
         segDiameterMicrons = cal?.toMicrons(diamPx)
-        segSuggestions = CellClassifier.suggest(segDiameterMicrons, res.ncRatio)
+        val granules = GranuleFeatures(
+            orangeness = res.cytoOrangeness,
+            darkPurpleFraction = res.cytoDarkPurpleFraction,
+            granularity = res.cytoGranularity
+        )
+        segSuggestions = CellClassifier.suggest(segDiameterMicrons, res.ncRatio, granules)
     }
 
     fun addPoint(imagePoint: Offset) {
