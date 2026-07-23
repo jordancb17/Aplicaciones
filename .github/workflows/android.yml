@@ -17,6 +17,9 @@ jobs:
   build:
     name: Build & test (debug)
     runs-on: ubuntu-latest
+    # Needed to publish the APK as a downloadable Release asset.
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -40,13 +43,28 @@ jobs:
       - name: Assemble debug APK
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Upload debug APK
+      - name: Upload debug APK (workflow artifact)
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: hematoscope-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+
+      # Publish the APK to a rolling pre-release so it has a direct, login-free
+      # download link (the app is installable straight from a phone browser).
+      - name: Publish debug APK to a rolling pre-release
+        if: success() && github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: debug-latest
+          name: HematoScope · APK de depuración (última compilación)
+          prerelease: true
+          body: |
+            APK de depuración generado automáticamente desde la rama de desarrollo.
+            Descárguelo e instálelo en Android (habilite "instalar de orígenes
+            desconocidos"). Compilación: ${{ github.sha }}.
+          files: app/build/outputs/apk/debug/*.apk
 
       - name: Upload test reports
         if: always()

@@ -30,6 +30,8 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -80,6 +82,7 @@ fun MeasurementScreen(vm: MeasurementViewModel = viewModel()) {
     ) {
         ToolRow(selected = vm.tool, onSelect = vm::selectTool)
         CalibrationRow(vm)
+        AutoNcToggle(vm)
 
         val bmp = vm.image
         if (bmp == null) {
@@ -95,10 +98,12 @@ fun MeasurementScreen(vm: MeasurementViewModel = viewModel()) {
                 Canvas(
                     Modifier
                         .fillMaxSize()
-                        .pointerInput(vm.tool, bmp) {
+                        .pointerInput(vm.tool, bmp, vm.autoNc) {
                             detectTapGestures { tap ->
                                 val fit = computeFit(size, bmp.width, bmp.height)
-                                vm.addPoint(fit.viewToImage(tap))
+                                val imagePoint = fit.viewToImage(tap)
+                                if (vm.autoNc) vm.runAutoSegmentation(imagePoint)
+                                else vm.addPoint(imagePoint)
                             }
                         }
                 ) {
@@ -131,11 +136,31 @@ fun MeasurementScreen(vm: MeasurementViewModel = viewModel()) {
                         vm.nucleusPointCount,
                         Color(0xFFFFEB3B)
                     )
+
+                    // Assisted N:C segmentation overlay.
+                    val seg = vm.segResult
+                    if (vm.autoNc && seg != null) {
+                        drawImage(
+                            image = seg.overlay.asImageBitmap(),
+                            dstSize = androidx.compose.ui.unit.IntSize(
+                                (seg.overlay.width * fit.scale).toInt(),
+                                (seg.overlay.height * fit.scale).toInt()
+                            ),
+                            dstOffset = androidx.compose.ui.unit.IntOffset(
+                                (seg.overlayLeft * fit.scale + fit.dx).toInt(),
+                                (seg.overlayTop * fit.scale + fit.dy).toInt()
+                            )
+                        )
+                    }
                 }
             }
-            LiveResultCard(vm)
-            ActionRow(vm) { picker.launch("image/*") }
-            AnnotationList(vm)
+            if (vm.autoNc) {
+                SegmentationPanel(vm) { picker.launch("image/*") }
+            } else {
+                LiveResultCard(vm)
+                ActionRow(vm) { picker.launch("image/*") }
+                AnnotationList(vm)
+            }
         }
     }
 }
@@ -173,6 +198,63 @@ private fun CalibrationRow(vm: MeasurementViewModel) {
                     onClick = { vm.selectCalibration(cal) },
                     label = { Text("${cal.objectiveLabel} · %.3f µm/px".format(cal.micronsPerPixel)) }
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AutoNcToggle(vm: MeasurementViewModel) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            "N:C automática (segmentación)",
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold
+        )
+        Switch(checked = vm.autoNc, onCheckedChange = vm::switchAutoNc)
+    }
+}
+
+@Composable
+private fun SegmentationPanel(vm: MeasurementViewModel, onPick: () -> Unit) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(12.dp)) {
+            Text(
+                "Segmentación N:C asistida",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                vm.segSummary ?: "Toque una célula para estimar su relación núcleo/citoplasma.",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(Modifier.size(8.dp))
+            Text(
+                "Radio de análisis: ${vm.segRadius.toInt()} px",
+                style = MaterialTheme.typography.bodySmall
+            )
+            Slider(
+                value = vm.segRadius,
+                onValueChange = vm::updateSegRadius,
+                valueRange = 20f..200f
+            )
+            Text(
+                "Violeta = núcleo · cian = citoplasma (estimación automática, no diagnóstica).",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.size(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = { vm.clearSegmentation() }) {
+                    Icon(Icons.Outlined.Clear, contentDescription = null)
+                    Spacer(Modifier.size(4.dp)); Text("Limpiar")
+                }
+                OutlinedButton(onClick = onPick) {
+                    Icon(Icons.Outlined.AddPhotoAlternate, contentDescription = null)
+                    Spacer(Modifier.size(4.dp)); Text("Otra imagen")
+                }
             }
         }
     }

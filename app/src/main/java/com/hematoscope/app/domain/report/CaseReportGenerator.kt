@@ -19,8 +19,8 @@ import kotlin.math.max
 private const val PAGE_W = 595   // A4 @72dpi
 private const val PAGE_H = 842
 private const val MARGIN = 40f
-private const val CONTENT_W = PAGE_W - 2 * MARGIN
-private const val CRIMSON = 0xFF7A0C26.toInt()
+private val CONTENT_W = PAGE_W - 2 * MARGIN
+private val CRIMSON = 0xFF7A0C26.toInt()
 
 /**
  * Renders a [CaseReportData] into a paginated A4 PDF using the platform

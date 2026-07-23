@@ -15,6 +15,8 @@ import com.hematoscope.app.data.model.MeasurementTool
 import com.hematoscope.app.domain.measurement.Calibration
 import com.hematoscope.app.domain.measurement.MeasurementEngine
 import com.hematoscope.app.domain.measurement.MeasurementResult
+import com.hematoscope.app.domain.measurement.NucleusSegmenter
+import com.hematoscope.app.domain.measurement.SegmentationResult
 import kotlinx.coroutines.launch
 
 /**
@@ -47,6 +49,16 @@ class MeasurementViewModel(app: Application) : AndroidViewModel(app) {
     /** Committed measurements shown on the overlay. */
     val annotations = mutableStateListOf<MeasurementAnnotation>()
 
+    // --- Assisted N:C segmentation ---
+    var autoNc by mutableStateOf(false)
+        private set
+    var segRadius by mutableStateOf(60f)
+        private set
+    var segResult by mutableStateOf<SegmentationResult?>(null)
+        private set
+    var segSummary by mutableStateOf<String?>(null)
+        private set
+
     init {
         viewModelScope.launch {
             repository.observeCalibrations().collect { list ->
@@ -69,6 +81,37 @@ class MeasurementViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun selectCalibration(c: Calibration?) { calibration = c }
+
+    fun switchAutoNc(enabled: Boolean) {
+        autoNc = enabled
+        if (!enabled) clearSegmentation()
+    }
+
+    fun updateSegRadius(value: Float) { segRadius = value }
+
+    fun clearSegmentation() {
+        segResult = null
+        segSummary = null
+    }
+
+    /** Auto-segment the cell under [center] (image coords) and estimate N:C. */
+    fun runAutoSegmentation(center: Offset) {
+        val bmp = image ?: return
+        val res = NucleusSegmenter.segment(bmp, center.x.toInt(), center.y.toInt(), segRadius.toInt())
+        if (res == null) {
+            segResult = null
+            segSummary = "Sin célula detectada bajo el toque"
+        } else {
+            segResult = res
+            segSummary = if (res.ncRatio.isFinite()) {
+                "N:C auto ≈ %.2f  ·  núcleo %.0f%% de la célula".format(
+                    res.ncRatio, res.nucleusFraction * 100f
+                )
+            } else {
+                "Núcleo prácticamente sin citoplasma detectable"
+            }
+        }
+    }
 
     fun addPoint(imagePoint: Offset) {
         // For simple two-point tools, cap at the required number of points.

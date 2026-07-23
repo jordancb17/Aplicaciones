@@ -17,7 +17,7 @@ de campos, gestión de **casos** y **conexión con cámaras de microscopía** �
 | --- | --- |
 | **Atlas de descriptores** | Catálogo buscable de tipos celulares (serie blanca, roja, plaquetas, precursores) y descriptores morfológicos (tamaño, forma, color, inclusiones, núcleo, citoplasma) con definición y significado clínico. |
 | **Recuento diferencial** | Contador manual tipo teclado para 100/200 leucocitos, con porcentajes en vivo, deshacer/reiniciar y NRBC (eritroblastos) por 100 leucocitos. |
-| **Medición** | Distancia/diámetro, longitud, área (polígono con Ø equivalente), círculo, ángulo y **relación núcleo/citoplasma (N:C)** sobre la imagen, en píxeles o **µm** si hay calibración. |
+| **Medición** | Distancia/diámetro, longitud, área (polígono con Ø equivalente), círculo, ángulo y **relación núcleo/citoplasma (N:C)** —manual o con **segmentación automática** (umbral de color + Otsu)— sobre la imagen, en píxeles o **µm** si hay calibración. |
 | **Calibración** | Escala µm/píxel por objetivo a partir de una **platina micrométrica** (o el estándar interno del hematíe ≈ 7,5 µm). |
 | **Comparación** | Dos campos lado a lado + una célula de referencia del atlas para contrastar rasgos. |
 | **Casos** | Estudios por paciente: campos capturados, recuento diferencial guardado, gradación semicuantitativa (0/1+/2+/3+) de la morfología y **exportación de informe PDF**. |
@@ -89,6 +89,13 @@ Practical Guide*).
 
 ## Compilación
 
+### Instalación rápida (APK, sin compilar)
+Cada push a la rama de desarrollo publica el APK de depuración como **Release**
+descargable directamente (sin iniciar sesión, sin descomprimir):
+**[Releases → `debug-latest`](https://github.com/jordancb17/Aplicaciones/releases/tag/debug-latest)**.
+Descárguelo en el teléfono y ábralo (habilite «instalar de orígenes desconocidos»).
+
+### Compilar desde el código
 Requiere **Android Studio** (Ladybug o superior) con **Android SDK 34** y **JDK 17**.
 
 ```bash
@@ -117,5 +124,5 @@ Implementado y funcional: atlas, recuento diferencial (con guardado en caso),
 medición + calibración, comparación, casos con persistencia, **informe PDF del
 caso** y las tres fuentes de captura.
 
-Ideas siguientes: segmentación asistida de núcleo/citoplasma para la N:C automática,
-y clasificación asistida por modelo en el dispositivo.
+Ideas siguientes: clasificación asistida por modelo en el dispositivo y afinado de
+la segmentación N:C con cribado morfológico por color.
